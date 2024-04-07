@@ -1,0 +1,17 @@
+Window: WIDTH HEIGHT FPS IS_FULLSCREEN
+Font: PATH SIZE COLOR
+Player: SHAPE_RADIUS COLLISION_RADIUS SPEED FILL_COLOR OUTLINE_COLOR OUTLINE_WIDTH VERTICIES_COUNT
+Enemy: SHAPE_RADIUS COLLISION_RADIUS SPEED_MIN SPEED_MAX OUTLINE_COLOR OUTLINE_WIDTH MIN_VERTICIES_COUNT MAX_VERTICIES_COUNT SMALL_LIFE_SPAN SPAWN_INTERVAL
+Bullet: SHAPE_RADIUS COLLISION_RADIUS SPEED FILL_COLOR OUTLINE_COLOR OUTLINE_WIDTH VERTICIES_COUNT LIFE_SPAN
+
+Recommended approach:
+
+1) EntityManager class - addEntity() and update()
+2) Base of game class - spawnPlayer() Game::sRender() spawnEnemy() spawnBullet()
+3) Player movement - Game::sUserInput() and Game::sMovement()
+4) EntityManager::update() - delete dead enemies
+5) EntityManager::getEntities(tag) function
+6) Collission in sCollision and entity.destroy() if it's dead
+7) Implement rest functionalty
+8) Config reading
+9) GUI for testing
