@@ -20,6 +20,11 @@ void Game::init(const std::string& path) {
     _scoreText.setFillColor(sf::Color(255, 255, 255));
     _scoreText.setCharacterSize(24);
 
+    _specialWeaponChargesText.setPosition(10.0f, 50.0f);
+    _specialWeaponChargesText.setFont(_font);
+    _specialWeaponChargesText.setFillColor(sf::Color(255, 255, 255));
+    _specialWeaponChargesText.setCharacterSize(24);
+
     ImGui::SFML::Init(_window);
 
     spawnPlayer();
@@ -88,7 +93,30 @@ void Game::spawnBullet(std::shared_ptr<Entity> entity, const Vec2& target) {
     bullet->cCollision = std::make_shared<CCollision>(8.0f);
 }
 
-void Game::spawnSpecialWeapon(std::shared_ptr<Entity> entity) {
+void Game::spawnSpecialWeapon() {
+    if (_specialWeaponCharges == 0) {
+        return;
+    }
+
+    std::vector<Vec2> directions{
+        Vec2(1, 0),
+        Vec2(1, 1),
+        Vec2(1, -1),
+        Vec2(-1, 1),
+        Vec2(-1, 0),
+        Vec2(-1, -1),
+        Vec2(0, 1),
+        Vec2(0, -1)
+    };
+
+    for (const Vec2& direction : directions) {
+        spawnBullet(
+            _player,
+            (_player->cTransform->pos+direction)
+        );
+    }
+
+    _specialWeaponCharges -= 1;
 }
 
 void Game::handlePlayerMovement() {
@@ -209,6 +237,14 @@ void Game::sCollision() {
                 _score += enemy->cScore->score;
                 enemy->destroy();
                 bullet->destroy();
+
+                _pointsToSpecialCharge -= enemy->cScore->score;
+
+                if (_pointsToSpecialCharge <= 0) {
+                    _pointsToSpecialCharge = 150;
+                    _specialWeaponCharges += 1;
+                }
+
                 break;
             }
         }
@@ -232,8 +268,17 @@ void Game::sGUI() {
 
     std::string scoreText = "Score: ";
     scoreText.append(std::to_string(_score));
-
     _scoreText.setString(scoreText);
+
+    std::string specialWeaponChargesText = "Special Weapon: ";
+    specialWeaponChargesText.append(std::to_string(_specialWeaponCharges));
+    _specialWeaponChargesText.setString(specialWeaponChargesText);
+
+    if (_specialWeaponCharges == 0) {
+        _specialWeaponChargesText.setColor(sf::Color(255, 0, 0));
+    } else {
+        _specialWeaponChargesText.setColor(sf::Color(255, 255, 255));
+    }
 }
 
 void Game::sRender() {
@@ -265,6 +310,7 @@ void Game::sRender() {
 
     _window.draw(_player->cShape->circle);
     _window.draw(_scoreText);
+    _window.draw(_specialWeaponChargesText);
 
     ImGui::SFML::Render(_window);
     
@@ -322,6 +368,11 @@ void Game::sUserInput() {
             case sf::Keyboard::A:
                 _player->cInput->left = false;
                 break;
+            case sf::Keyboard::Space:
+                if (!_paused) {
+                    spawnSpecialWeapon();
+                }
+                break;
             default:
                 break;
             }
@@ -332,10 +383,6 @@ void Game::sUserInput() {
 
             if (event.mouseButton.button == sf::Mouse::Left) {
                 spawnBullet(_player, Vec2(event.mouseButton.x, event.mouseButton.y));
-            }
-
-            if (event.mouseButton.button == sf::Mouse::Right) {
-                std::cout << "Right mouse clicked at (" << event.mouseButton.x << "," << event.mouseButton.y << ")\n";
             }
         }
     }

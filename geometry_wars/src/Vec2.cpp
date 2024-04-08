@@ -8,8 +8,7 @@ Vec2::Vec2(float xin, float yin)
 }
 
 Vec2 Vec2::operator + (const Vec2& rhs) const {
-    // TODO:
-    return Vec2(0, 0);
+    return Vec2(x + rhs.x, y + rhs.y);
 }
 
 Vec2 Vec2::operator - (const Vec2& rhs) const {
@@ -21,16 +20,17 @@ Vec2 Vec2::operator * (const Vec2& rhs) const {
 }
 
 Vec2 Vec2::operator / (const Vec2& rhs) const {
-    // TODO:
-    return Vec2(0, 0);
+    return Vec2(x / rhs.x, y / rhs.y);
 }
 
 void Vec2::operator += (const Vec2& rhs) {
-    // TODO:
+    x += rhs.x;
+    y += rhs.y;
 }
 
 void Vec2::operator -= (const Vec2& rhs) {
-    // TODO:
+    x -= rhs.x;
+    y -= rhs.y;
 }
 
 void Vec2::operator *= (const Vec2& rhs) {
@@ -39,17 +39,16 @@ void Vec2::operator *= (const Vec2& rhs) {
 }
 
 void Vec2::operator /= (const Vec2& rhs) {
-    // TODO:
+    x /= rhs.x;
+    y /= rhs.y;
 }
 
 bool Vec2::operator == (const Vec2& rhs) const {
-    // TODO:
-    return false;
+    return x == rhs.x && y == rhs.y;
 }
 
 bool Vec2::operator != (const Vec2& rhs) const {
-    // TODO:
-    return false;
+    return x != rhs.x || y != rhs.y;
 }
 
 float Vec2::dist(const Vec2& rhs) const {

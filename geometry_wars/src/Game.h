@@ -17,11 +17,14 @@ private:
     EntityManager _entityManager;
     sf::Font _font;
     sf::Text _scoreText;
+    sf::Text _specialWeaponChargesText;
     PlayerConfig _playerConfig;
     EnemyConfig _enemyConfig;
     BulletConfig _bulletConfig;
     sf::Clock _deltaClock;
     int _score = 0;
+    int _specialWeaponCharges = 10;
+    int _pointsToSpecialCharge = 150;
     int _currentFrame = 0;
     int _lastEnemySpawnTime = 0;
     bool _running = true;
@@ -36,7 +39,7 @@ private:
     void spawnEnemy();
     void spawnSmallEnemies(std::shared_ptr<Entity> e);
     void spawnBullet(std::shared_ptr<Entity> entity, const Vec2& target);
-    void spawnSpecialWeapon(std::shared_ptr<Entity> entity);
+    void spawnSpecialWeapon();
     void handlePlayerMovement();
     void reflectBorderCollidingEntity(std::shared_ptr<Entity> entity);
     bool isColliding(std::shared_ptr<Entity> lhs, std::shared_ptr<Entity> rhs);
