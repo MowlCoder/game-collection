@@ -23,8 +23,9 @@ private:
     BulletConfig _bulletConfig;
     sf::Clock _deltaClock;
     int _score = 0;
-    int _specialWeaponCharges = 10;
-    int _pointsToSpecialCharge = 150;
+    int _specialWeaponCharges = 5;
+    const int _pointToSpecialCharge = 5000;
+    int _pointsToSpecialChargeLeft = _pointToSpecialCharge;
     int _currentFrame = 0;
     int _lastEnemySpawnTime = 0;
     bool _running = true;
@@ -43,6 +44,8 @@ private:
     void handlePlayerMovement();
     void reflectBorderCollidingEntity(std::shared_ptr<Entity> entity);
     bool isColliding(std::shared_ptr<Entity> lhs, std::shared_ptr<Entity> rhs);
+    void destroyEnemy(std::shared_ptr<Entity> enemy);
+    void getScoreForKill(std::shared_ptr<Entity> enemy);
 
     void sMovement();
     void sLifespan();

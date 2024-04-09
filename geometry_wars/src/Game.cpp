@@ -1,4 +1,5 @@
 #include "Game.h"
+#include "Random.h"
 
 #include <iostream>
 
@@ -72,14 +73,34 @@ void Game::spawnPlayer() {
 }
 
 void Game::spawnEnemy() {
+    int pointCount = Random::getInRange(3, 8);
+    auto color = sf::Color(Random::get(255), Random::get(255), Random::get(255));
+    int score = pointCount * 100;
+    int radius = 32;
+    Vec2 position = Vec2(Random::getInRange(radius, _window.getSize().x-radius), Random::getInRange(radius, _window.getSize().y-radius));
+    Vec2 velocity = Vec2(Random::getInRange(-5, 5), Random::getInRange(-5, 5));
+
     auto entity = _entityManager.addEntity("enemy");
-    entity->cTransform = std::make_shared<CTransform>(Vec2(100.0f, 100.0f), Vec2(3.0f, 3.0f), 0.0f);
-    entity->cShape = std::make_shared<CShape>(32.0f, 6, sf::Color(255, 255, 0), sf::Color(0, 0, 0), 0);
-    entity->cScore = std::make_shared<CScore>(50);
-    entity->cCollision = std::make_shared<CCollision>(32.0f);
+    entity->cTransform = std::make_shared<CTransform>(position, velocity, 0.0f);
+    entity->cShape = std::make_shared<CShape>(static_cast<float>(radius), pointCount, color, sf::Color(0, 0, 0), 0);
+    entity->cScore = std::make_shared<CScore>(score);
+    entity->cCollision = std::make_shared<CCollision>(static_cast<float>(radius));
 }
 
 void Game::spawnSmallEnemies(std::shared_ptr<Entity> e) {
+    size_t pointCount = e->cShape->circle.getPointCount();
+    float degreeInverval = 360 / pointCount;
+
+    for (size_t i = 0; i < pointCount; i++) {
+        float radians = (degreeInverval * i * M_PI) / 180;
+        Vec2 speed = Vec2(3.0f, 3.0f);
+        Vec2 velocity = Vec2(cos(radians), sin(radians)) * speed;
+
+        auto entity = _entityManager.addEntity("enemy_particle");
+        entity->cTransform = std::make_shared<CTransform>(e->cTransform->pos, velocity, 0.0f);
+        entity->cShape = std::make_shared<CShape>(e->cShape->circle.getRadius() / 3, e->cShape->circle.getPointCount(), e->cShape->circle.getFillColor(), e->cShape->circle.getFillColor(), 0);
+        entity->cLifespan = std::make_shared<CLifespan>(30);
+    }
 }
 
 void Game::spawnBullet(std::shared_ptr<Entity> entity, const Vec2& target) {
@@ -223,10 +244,25 @@ bool Game::isColliding(std::shared_ptr<Entity> lhs, std::shared_ptr<Entity> rhs)
     return totalRadiusDistance > currentRadiusDistance;
 }
 
+void Game::getScoreForKill(std::shared_ptr<Entity> enemy) {
+    _score += enemy->cScore->score;
+    _pointsToSpecialChargeLeft -= enemy->cScore->score;
+
+    if (_pointsToSpecialChargeLeft <= 0) {
+        _pointsToSpecialChargeLeft = _pointToSpecialCharge;
+        _specialWeaponCharges += 1;
+    }
+}
+
+void Game::destroyEnemy(std::shared_ptr<Entity> enemy) {
+    spawnSmallEnemies(enemy);
+    enemy->destroy();
+}
+
 void Game::sCollision() {
     for (auto enemy : _entityManager.getEntities("enemy")) {
         if (isColliding(enemy, _player)) {
-            enemy->destroy();
+            destroyEnemy(enemy);
             _player->destroy();
             spawnPlayer();
             break;
@@ -234,17 +270,10 @@ void Game::sCollision() {
 
         for (auto bullet : _entityManager.getEntities("bullet")) {
             if (isColliding(enemy, bullet)) {
-                _score += enemy->cScore->score;
-                enemy->destroy();
+                getScoreForKill(enemy);
+                destroyEnemy(enemy);
+
                 bullet->destroy();
-
-                _pointsToSpecialCharge -= enemy->cScore->score;
-
-                if (_pointsToSpecialCharge <= 0) {
-                    _pointsToSpecialCharge = 150;
-                    _specialWeaponCharges += 1;
-                }
-
                 break;
             }
         }
