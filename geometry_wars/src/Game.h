@@ -22,14 +22,20 @@ private:
     EnemyConfig _enemyConfig;
     BulletConfig _bulletConfig;
     sf::Clock _deltaClock;
+
     int _score = 0;
     int _specialWeaponCharges = 5;
     const int _pointToSpecialCharge = 5000;
     int _pointsToSpecialChargeLeft = _pointToSpecialCharge;
     int _currentFrame = 0;
     int _lastEnemySpawnTime = 0;
+
     bool _running = true;
     bool _paused = false;
+    bool _enableLifeSpanSystem = true;
+    bool _enableSpawnSystem = true;
+    bool _enableCollissionSystem = true;
+    bool _enableMovementSystem = true;
 
     std::shared_ptr<Entity> _player;
 

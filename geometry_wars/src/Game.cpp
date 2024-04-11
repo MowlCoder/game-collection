@@ -37,10 +37,21 @@ void Game::run() {
         ImGui::SFML::Update(_window, _deltaClock.restart());
 
         if (!_paused) {
-            sEnemySpawner();
-            sMovement();
-            sCollision();
-            sLifespan();
+            if (_enableMovementSystem) {
+                sMovement();
+            }
+
+            if (_enableSpawnSystem) {
+                sEnemySpawner();
+            }
+
+            if (_enableCollissionSystem) {
+                sCollision();
+            }
+            
+            if (_enableLifeSpanSystem) {
+                sLifespan();
+            }
         }
 
         sUserInput();
@@ -292,6 +303,15 @@ void Game::sEnemySpawner() {
 
 void Game::sGUI() {
     ImGui::Begin("Geometry Wars");
+    ImGui::Checkbox("LifeSpan", &_enableLifeSpanSystem);
+    ImGui::Checkbox("Collision", &_enableCollissionSystem);
+    ImGui::Checkbox("Spawning", &_enableSpawnSystem);
+    
+    if (ImGui::Button("Spawn")) {
+        spawnEnemy();
+    }
+
+    ImGui::Checkbox("Movement", &_enableMovementSystem);
     ImGui::Checkbox("Paused", &_paused);
     ImGui::End();
 
@@ -349,11 +369,12 @@ void Game::sRender() {
 void Game::sUserInput() {
     sf::Event event;
 
-    while(_window.pollEvent(event)) {
+    while (_window.pollEvent(event)) {
         ImGui::SFML::ProcessEvent(_window, event);
 
         if (event.type == sf::Event::Closed) {
             _running = false;
+            return;
         }
 
         if (event.type == sf::Event::KeyPressed) {
